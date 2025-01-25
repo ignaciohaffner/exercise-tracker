@@ -1,5 +1,5 @@
 import type React from "react";
-import { type Topic, Section, type Exercise } from "../types";
+import { type Topic, type Exercise } from "../types";
 
 interface ExerciseTrackerProps {
   topic: Topic;
