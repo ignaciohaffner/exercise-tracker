@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import type { Topic } from "../types";
 import { theme } from "../theme";
 import { Share2, Trash2 } from "lucide-react";
+import Modal from "./Modal";
 
 interface TopicListProps {
   topics: Topic[];
@@ -38,7 +39,6 @@ const TopicList: React.FC<TopicListProps> = ({
   };
 
   const handleShare = (topic: Topic) => {
-    // Convertir las secciones a un array de objetos
     const shareData = topic.sections.map((section) => ({
       [section.name]: section.exercises.map((ex) => ex.number),
     }));
@@ -50,155 +50,153 @@ const TopicList: React.FC<TopicListProps> = ({
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="topics">
-        {(provided) => (
-          <div
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            className="space-y-2"
-            style={{ backgroundColor: theme.colors.background }}
-          >
-            {topics.map((topic, index) => (
-              <Draggable
-                key={topic.name}
-                draggableId={topic.name}
-                index={index}
-              >
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    className="rounded-lg overflow-hidden shadow-sm"
-                    style={{ backgroundColor: theme.colors.surface }}
-                  >
+    <>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="topics">
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="space-y-2"
+              style={{ backgroundColor: theme.colors.background }}
+            >
+              {topics.map((topic, index) => (
+                <Draggable
+                  key={topic.name}
+                  draggableId={topic.name}
+                  index={index}
+                >
+                  {(provided) => (
                     <div
-                      className="p-3 cursor-pointer border-l-4"
-                      style={{
-                        borderColor:
-                          topic.name === currentTopic
-                            ? theme.colors.primary
-                            : "transparent",
-                      }}
-                      onClick={() => onTopicSelect(topic.name)}
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="rounded-lg overflow-hidden shadow-sm"
+                      style={{ backgroundColor: theme.colors.surface }}
                     >
-                      <div className="flex justify-between items-center">
-                        <span style={{ color: theme.colors.text }}>
-                          {topic.name}
-                        </span>
-                        <div className="space-x-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleShare(topic);
-                            }}
-                            className="p-1 rounded hover:opacity-80"
-                            style={{ backgroundColor: theme.colors.accent }}
-                          >
-                            <Share2 size={16} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteConfirmation({ topic: topic.name });
-                            }}
-                            className="p-1 rounded hover:opacity-80"
-                            style={{ backgroundColor: theme.colors.error }}
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                      <div
+                        className="p-3 cursor-pointer border-l-4"
+                        style={{
+                          borderColor:
+                            topic.name === currentTopic
+                              ? theme.colors.primary
+                              : "transparent",
+                        }}
+                        onClick={() => onTopicSelect(topic.name)}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span style={{ color: theme.colors.text }}>
+                            {topic.name}
+                          </span>
+                          <div className="space-x-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleShare(topic);
+                              }}
+                              className="p-1 rounded hover:opacity-80"
+                              style={{ backgroundColor: theme.colors.accent }}
+                            >
+                              <Share2 size={16} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteConfirmation({ topic: topic.name });
+                              }}
+                              className="p-1 rounded hover:opacity-80"
+                              style={{ backgroundColor: theme.colors.error }}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    {topic.name === currentTopic && (
-                      <div className="px-3 pb-3">
-                        {topic.sections.map((section) => (
-                          <div
-                            key={section.name}
-                            className="mt-2 p-2 rounded"
-                            style={{ backgroundColor: theme.colors.background }}
-                          >
-                            <div className="flex justify-between items-center">
-                              <span style={{ color: theme.colors.text }}>
-                                {section.name}
-                              </span>
-                              <button
-                                onClick={() =>
-                                  setDeleteConfirmation({
-                                    topic: topic.name,
-                                    section: section.name,
-                                  })
-                                }
-                                className="p-1 rounded hover:opacity-80"
-                                style={{ backgroundColor: theme.colors.error }}
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                      {topic.name === currentTopic && (
+                        <div className="px-3 pb-3">
+                          {topic.sections.map((section) => (
+                            <div
+                              key={section.name}
+                              className="mt-2 p-2 rounded"
+                              style={{
+                                backgroundColor: theme.colors.background,
+                              }}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span style={{ color: theme.colors.text }}>
+                                  {section.name}
+                                </span>
+                                <button
+                                  onClick={() =>
+                                    setDeleteConfirmation({
+                                      topic: topic.name,
+                                      section: section.name,
+                                    })
+                                  }
+                                  className="p-1 rounded hover:opacity-80"
+                                  style={{
+                                    backgroundColor: theme.colors.error,
+                                  }}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-
-      {deleteConfirmation && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-          onClick={() => setDeleteConfirmation(null)}
-        >
-          <div
-            className="p-6 rounded-lg"
-            style={{ backgroundColor: theme.colors.surface }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3
-              className="text-lg font-semibold mb-4"
-              style={{ color: theme.colors.text }}
-            >
-              ¿Estás seguro que deseas eliminar{" "}
-              {deleteConfirmation.section ? "esta sección" : "este tema"}?
-            </h3>
-            <p className="mb-4" style={{ color: theme.colors.text }}>
-              Esta acción no se puede deshacer.
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setDeleteConfirmation(null)}
-                className="px-4 py-2 rounded"
-                style={{ backgroundColor: theme.colors.secondary }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  if (deleteConfirmation.section) {
-                    onDeleteSection(
-                      deleteConfirmation.topic!,
-                      deleteConfirmation.section
-                    );
-                  } else {
-                    onDeleteTopic(deleteConfirmation.topic!);
-                  }
-                  setDeleteConfirmation(null);
-                }}
-                className="px-4 py-2 rounded text-white"
-                style={{ backgroundColor: theme.colors.error }}
-              >
-                Eliminar
-              </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-          </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+
+      <Modal
+        isOpen={deleteConfirmation !== null}
+        onClose={() => setDeleteConfirmation(null)}
+      >
+        <h2
+          className="text-xl font-bold mb-4"
+          style={{ color: theme.colors.text }}
+        >
+          Confirmar eliminación
+        </h2>
+        <p className="mb-4" style={{ color: theme.colors.text }}>
+          ¿Estás seguro que deseas eliminar{" "}
+          {deleteConfirmation?.section ? "esta sección" : "este tema"}?
+        </p>
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={() => setDeleteConfirmation(null)}
+            className="px-4 py-2 rounded"
+            style={{ backgroundColor: theme.colors.secondary }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={() => {
+              if (deleteConfirmation?.section) {
+                onDeleteSection(
+                  deleteConfirmation.topic!,
+                  deleteConfirmation.section
+                );
+              } else if (deleteConfirmation?.topic) {
+                onDeleteTopic(deleteConfirmation.topic);
+              }
+              setDeleteConfirmation(null);
+            }}
+            className="px-4 py-2 rounded text-white"
+            style={{ backgroundColor: theme.colors.error }}
+          >
+            Eliminar
+          </button>
         </div>
-      )}
-    </DragDropContext>
+      </Modal>
+    </>
   );
 };
 
