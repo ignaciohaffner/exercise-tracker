@@ -5,8 +5,10 @@ import JsonInput from "./components/JsonInput";
 import TopicList from "./components/TopicList";
 import Modal from "./components/Modal";
 import SectionCreator from "./components/SectionCreator";
-import type { Topic, Section, Exercise } from "./types";
-import { theme } from "./theme";
+import Settings from "./components/Settings";
+import type { Topic, Section, Exercise, Theme, ThemeMode } from "./types";
+import { theme as themeConfig } from "./theme";
+import { SettingsIcon } from "lucide-react";
 
 const App: React.FC = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -15,6 +17,8 @@ const App: React.FC = () => {
   const [showNewTopicModal, setShowNewTopicModal] = useState(false);
   const [newTopicName, setNewTopicName] = useState("");
   const [showSectionCreator, setShowSectionCreator] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [themeMode, setThemeMode] = useState<ThemeMode>("light");
 
   useEffect(() => {
     const storedTopics = localStorage.getItem("mathTopics");
@@ -25,7 +29,19 @@ const App: React.FC = () => {
         setCurrentTopic(parsedTopics[0].name);
       }
     }
+
+    const storedTheme = localStorage.getItem("theme") as ThemeMode | null;
+    if (storedTheme) {
+      setThemeMode(storedTheme);
+    }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("theme", themeMode);
+  }, [themeMode]);
+
+  const colors = themeConfig.getColors(themeMode);
+  const theme: Theme = { mode: themeMode, colors };
 
   const updateExerciseState = (
     topicName: string,
@@ -144,32 +160,65 @@ const App: React.FC = () => {
     setShowSectionCreator(false);
   };
 
+  const exportData = () => {
+    const data = JSON.stringify(topics, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "math_exercises_data.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importData = (data: string) => {
+    try {
+      const parsedData = JSON.parse(data);
+      setTopics(parsedData);
+      localStorage.setItem("mathTopics", JSON.stringify(parsedData));
+      if (parsedData.length > 0) {
+        setCurrentTopic(parsedData[0].name);
+      }
+    } catch (error) {
+      alert(
+        "Error al importar los datos. Asegúrate de que el archivo es válido."
+      );
+    }
+  };
+
   const currentTopicData = topics.find((topic) => topic.name === currentTopic);
 
   return (
     <div
       className="min-h-screen"
-      style={{ backgroundColor: theme.colors.background }}
+      style={{ backgroundColor: colors.background }}
     >
       <div className="max-w-6xl mx-auto p-4">
-        <h1
-          className="text-3xl font-bold mb-6"
-          style={{ color: theme.colors.text }}
-        >
-          Tracker de Ejercicios de Matemáticas
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold" style={{ color: colors.text }}>
+            Tracker de Ejercicios de Matemáticas
+          </h1>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="p-2 rounded"
+            style={{ backgroundColor: colors.primary }}
+          >
+            <SettingsIcon size={24} color={colors.text} />
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">
             <button
               onClick={() => setShowNewTopicModal(true)}
               className="w-full px-4 py-2 rounded mb-4 text-white"
-              style={{ backgroundColor: theme.colors.primary }}
+              style={{ backgroundColor: colors.primary }}
             >
               Crear Nuevo Tema
             </button>
             <TopicList
               topics={topics}
               currentTopic={currentTopic}
+              theme={theme}
               onTopicSelect={setCurrentTopic}
               onTopicsReorder={handleTopicsReorder}
               onDeleteTopic={handleDeleteTopic}
@@ -183,14 +232,14 @@ const App: React.FC = () => {
                   <button
                     onClick={() => setShowSectionCreator(true)}
                     className="px-4 py-2 rounded text-white"
-                    style={{ backgroundColor: theme.colors.primary }}
+                    style={{ backgroundColor: colors.primary }}
                   >
                     Crear Nueva Sección
                   </button>
                   <button
                     onClick={() => setShowJsonInput(!showJsonInput)}
                     className="px-4 py-2 rounded text-white"
-                    style={{ backgroundColor: theme.colors.accent }}
+                    style={{ backgroundColor: colors.accent }}
                   >
                     {showJsonInput ? "Ocultar" : "Mostrar"} Importar JSON
                   </button>
@@ -200,14 +249,19 @@ const App: React.FC = () => {
                   <Modal
                     isOpen={showSectionCreator}
                     onClose={() => setShowSectionCreator(false)}
+                    theme={theme}
                   >
-                    <SectionCreator onSectionCreate={handleSectionCreate} />
+                    <SectionCreator
+                      onSectionCreate={handleSectionCreate}
+                      theme={theme}
+                    />
                   </Modal>
                 )}
                 {currentTopicData && (
                   <ExerciseTracker
                     topic={currentTopicData}
                     updateExerciseState={updateExerciseState}
+                    theme={theme}
                   />
                 )}
               </>
@@ -218,11 +272,9 @@ const App: React.FC = () => {
       <Modal
         isOpen={showNewTopicModal}
         onClose={() => setShowNewTopicModal(false)}
+        theme={theme}
       >
-        <h2
-          className="text-xl font-bold mb-4"
-          style={{ color: theme.colors.text }}
-        >
+        <h2 className="text-xl font-bold mb-4" style={{ color: colors.text }}>
           Crear Nuevo Tema
         </h2>
         <input
@@ -230,25 +282,37 @@ const App: React.FC = () => {
           value={newTopicName}
           onChange={(e) => setNewTopicName(e.target.value)}
           className="w-full p-2 mb-4 border rounded"
-          style={{ borderColor: theme.colors.border }}
+          style={{ borderColor: colors.border }}
           placeholder="Nombre del nuevo tema"
         />
         <div className="flex justify-end space-x-2">
           <button
             onClick={() => setShowNewTopicModal(false)}
             className="px-4 py-2 rounded"
-            style={{ backgroundColor: theme.colors.secondary }}
+            style={{ backgroundColor: colors.secondary }}
           >
             Cancelar
           </button>
           <button
             onClick={handleTopicCreate}
             className="px-4 py-2 rounded text-white"
-            style={{ backgroundColor: theme.colors.primary }}
+            style={{ backgroundColor: colors.primary }}
           >
             Crear
           </button>
         </div>
+      </Modal>
+      <Modal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        theme={theme}
+      >
+        <Settings
+          theme={theme}
+          setTheme={setThemeMode}
+          exportData={exportData}
+          importData={importData}
+        />
       </Modal>
     </div>
   );

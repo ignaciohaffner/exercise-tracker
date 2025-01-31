@@ -1,15 +1,18 @@
 import type React from "react";
 import type { ReactNode } from "react";
-import { theme } from "../theme";
+import type { Theme } from "../types";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  theme: Theme;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, theme }) => {
   if (!isOpen) return null;
+
+  const { colors } = theme;
 
   return (
     <div
@@ -19,7 +22,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     >
       <div
         className="p-6 rounded-lg max-w-md w-full"
-        style={{ backgroundColor: theme.colors.surface }}
+        style={{ backgroundColor: colors.surface }}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

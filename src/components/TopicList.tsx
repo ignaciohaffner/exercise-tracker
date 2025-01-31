@@ -1,14 +1,14 @@
 import type React from "react";
 import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import type { Topic } from "../types";
-import { theme } from "../theme";
+import type { Topic, Theme } from "../types";
 import { Share2, Trash2 } from "lucide-react";
 import Modal from "./Modal";
 
 interface TopicListProps {
   topics: Topic[];
   currentTopic: string;
+  theme: Theme;
   onTopicSelect: (topicName: string) => void;
   onTopicsReorder: (reorderedTopics: Topic[]) => void;
   onDeleteTopic: (topicName: string) => void;
@@ -18,13 +18,14 @@ interface TopicListProps {
 const TopicList: React.FC<TopicListProps> = ({
   topics,
   currentTopic,
+  theme,
   onTopicSelect,
   onTopicsReorder,
   onDeleteTopic,
   onDeleteSection,
 }) => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
-    topic?: string;
+    topic: string;
     section?: string;
   } | null>(null);
 
@@ -158,6 +159,7 @@ const TopicList: React.FC<TopicListProps> = ({
       <Modal
         isOpen={deleteConfirmation !== null}
         onClose={() => setDeleteConfirmation(null)}
+        theme={theme}
       >
         <h2
           className="text-xl font-bold mb-4"
@@ -166,8 +168,11 @@ const TopicList: React.FC<TopicListProps> = ({
           Confirmar eliminación
         </h2>
         <p className="mb-4" style={{ color: theme.colors.text }}>
-          ¿Estás seguro que deseas eliminar{" "}
-          {deleteConfirmation?.section ? "esta sección" : "este tema"}?
+          ¿Estás seguro que deseas borrar{" "}
+          {deleteConfirmation?.section
+            ? `la sección '${deleteConfirmation.section}' del tema '${deleteConfirmation.topic}'`
+            : `el tema '${deleteConfirmation?.topic}'`}
+          ?
         </p>
         <div className="flex justify-end space-x-2">
           <button
@@ -181,7 +186,7 @@ const TopicList: React.FC<TopicListProps> = ({
             onClick={() => {
               if (deleteConfirmation?.section) {
                 onDeleteSection(
-                  deleteConfirmation.topic!,
+                  deleteConfirmation.topic,
                   deleteConfirmation.section
                 );
               } else if (deleteConfirmation?.topic) {

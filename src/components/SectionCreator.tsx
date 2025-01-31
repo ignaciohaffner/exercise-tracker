@@ -1,14 +1,20 @@
 import type React from "react";
 import { useState } from "react";
-import { theme } from "../theme";
+import type { Theme } from "../types";
 
 interface SectionCreatorProps {
   onSectionCreate: (sectionName: string, exercises: number[]) => void;
+  theme: Theme;
 }
 
-const SectionCreator: React.FC<SectionCreatorProps> = ({ onSectionCreate }) => {
+const SectionCreator: React.FC<SectionCreatorProps> = ({
+  onSectionCreate,
+  theme,
+}) => {
   const [sectionName, setSectionName] = useState("");
   const [exercisesInput, setExercisesInput] = useState("");
+
+  const { colors } = theme;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +35,7 @@ const SectionCreator: React.FC<SectionCreatorProps> = ({ onSectionCreate }) => {
         <label
           htmlFor="sectionName"
           className="block mb-1"
-          style={{ color: theme.colors.text }}
+          style={{ color: colors.text }}
         >
           Nombre de la sección:
         </label>
@@ -39,7 +45,11 @@ const SectionCreator: React.FC<SectionCreatorProps> = ({ onSectionCreate }) => {
           value={sectionName}
           onChange={(e) => setSectionName(e.target.value)}
           className="w-full p-2 border rounded"
-          style={{ borderColor: theme.colors.border }}
+          style={{
+            borderColor: colors.border,
+            backgroundColor: colors.background,
+            color: colors.text,
+          }}
           required
         />
       </div>
@@ -47,7 +57,7 @@ const SectionCreator: React.FC<SectionCreatorProps> = ({ onSectionCreate }) => {
         <label
           htmlFor="exercises"
           className="block mb-1"
-          style={{ color: theme.colors.text }}
+          style={{ color: colors.text }}
         >
           Ejercicios (separados por comas):
         </label>
@@ -57,7 +67,11 @@ const SectionCreator: React.FC<SectionCreatorProps> = ({ onSectionCreate }) => {
           value={exercisesInput}
           onChange={(e) => setExercisesInput(e.target.value)}
           className="w-full p-2 border rounded"
-          style={{ borderColor: theme.colors.border }}
+          style={{
+            borderColor: colors.border,
+            backgroundColor: colors.background,
+            color: colors.text,
+          }}
           placeholder="1, 2, 3, 4, 5"
           required
         />
@@ -65,7 +79,7 @@ const SectionCreator: React.FC<SectionCreatorProps> = ({ onSectionCreate }) => {
       <button
         type="submit"
         className="w-full px-4 py-2 rounded text-white"
-        style={{ backgroundColor: theme.colors.primary }}
+        style={{ backgroundColor: colors.primary }}
       >
         Crear Sección
       </button>

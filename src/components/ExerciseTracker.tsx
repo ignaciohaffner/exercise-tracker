@@ -1,6 +1,5 @@
 import type React from "react";
-import type { Topic, Exercise } from "../types";
-import { theme } from "../theme";
+import type { Topic, Exercise, Theme } from "../types";
 
 interface ExerciseTrackerProps {
   topic: Topic;
@@ -10,17 +9,21 @@ interface ExerciseTrackerProps {
     exerciseNumber: number,
     newState: Exercise["state"]
   ) => void;
+  theme: Theme;
 }
 
 const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
   topic,
   updateExerciseState,
+  theme,
 }) => {
+  const { colors } = theme;
+
   const stateColors: Record<Exercise["state"], string> = {
-    "sin resolver": theme.colors.surface,
-    resuelto: theme.colors.success,
-    "no me salió": theme.colors.error,
-    duda: theme.colors.warning,
+    "sin resolver": colors.surface,
+    resuelto: colors.success,
+    "no me salió": colors.error,
+    duda: colors.warning,
   };
 
   const handleClick = (
@@ -45,11 +48,11 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
         <div
           key={section.name}
           className="p-4 rounded-lg"
-          style={{ backgroundColor: theme.colors.surface }}
+          style={{ backgroundColor: colors.surface }}
         >
           <h3
             className="text-xl font-semibold mb-4"
-            style={{ color: theme.colors.text }}
+            style={{ color: colors.text }}
           >
             {section.name}
           </h3>
@@ -64,10 +67,8 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
                 style={{
                   backgroundColor: stateColors[exercise.state],
                   color:
-                    exercise.state === "sin resolver"
-                      ? theme.colors.text
-                      : "#FFF",
-                  border: `1px solid ${theme.colors.border}`,
+                    exercise.state === "sin resolver" ? colors.text : "#FFF",
+                  border: `1px solid ${colors.border}`,
                 }}
               >
                 {exercise.number}
