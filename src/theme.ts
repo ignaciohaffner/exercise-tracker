@@ -1,6 +1,6 @@
-type ThemeMode = "light" | "dark";
+import type { ThemeColors, ThemeMode } from "./types";
 
-const lightTheme = {
+const lightTheme: ThemeColors = {
   primary: "#8B7355",
   secondary: "#D2B48C",
   accent: "#DEB887",
@@ -13,23 +13,20 @@ const lightTheme = {
   border: "#D2B48C",
 };
 
-const darkTheme = {
-  primary: "#9370DB",
-  secondary: "#B19CD9",
-  accent: "#9F79EE",
-  background: "#483D8B",
-  surface: "#6A5ACD",
-  text: "#E6E6FA",
-  error: "#FF6A6A",
-  success: "#90EE90",
-  warning: "#FFB90F",
-  border: "#9F79EE",
-};
-
-export const getTheme = (mode: ThemeMode) => {
-  return mode === "light" ? lightTheme : darkTheme;
+const darkTheme: ThemeColors = {
+  primary: "#CCCCCC",
+  secondary: "#999999",
+  accent: "#666666",
+  background: "#1A1A1A",
+  surface: "#2C2C2C",
+  text: "#FFFFFF",
+  error: "#FF6666",
+  success: "#66FF66",
+  warning: "#FFCC66",
+  border: "#444444",
 };
 
 export const theme = {
-  getColors: (mode: ThemeMode) => getTheme(mode),
+  getColors: (mode: ThemeMode): ThemeColors =>
+    mode === "light" ? lightTheme : darkTheme,
 };
