@@ -1,5 +1,6 @@
 import type React from "react";
-import { type Topic, type Exercise } from "../types";
+import type { Topic, Exercise } from "../types";
+import { theme } from "../theme";
 
 interface ExerciseTrackerProps {
   topic: Topic;
@@ -16,10 +17,10 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
   updateExerciseState,
 }) => {
   const stateColors: Record<Exercise["state"], string> = {
-    "sin resolver": "bg-white",
-    resuelto: "bg-green-500",
-    "no me salió": "bg-red-500",
-    duda: "bg-yellow-500",
+    "sin resolver": theme.colors.surface,
+    resuelto: theme.colors.success,
+    "no me salió": theme.colors.error,
+    duda: theme.colors.warning,
   };
 
   const handleClick = (
@@ -39,23 +40,35 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">{topic.name}</h2>
+    <div className="space-y-6">
       {topic.sections.map((section) => (
-        <div key={section.name} className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">{section.name}</h3>
-          <div className="flex flex-wrap">
+        <div
+          key={section.name}
+          className="p-4 rounded-lg"
+          style={{ backgroundColor: theme.colors.surface }}
+        >
+          <h3
+            className="text-xl font-semibold mb-4"
+            style={{ color: theme.colors.text }}
+          >
+            {section.name}
+          </h3>
+          <div className="flex flex-wrap gap-2">
             {section.exercises.map((exercise) => (
               <div
                 key={exercise.number}
                 onClick={() =>
                   handleClick(section.name, exercise.number, exercise.state)
                 }
-                className={`
-                  w-10 h-10 m-1 flex justify-center items-center cursor-pointer
-                  ${stateColors[exercise.state]}
-                  border border-gray-300 rounded-md transition-all duration-200 ease-in-out hover:scale-110
-                `}
+                className="w-10 h-10 flex items-center justify-center rounded cursor-pointer transition-transform hover:scale-110 shadow-sm"
+                style={{
+                  backgroundColor: stateColors[exercise.state],
+                  color:
+                    exercise.state === "sin resolver"
+                      ? theme.colors.text
+                      : "#FFF",
+                  border: `1px solid ${theme.colors.border}`,
+                }}
               >
                 {exercise.number}
               </div>

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Tooltip as ReactTooltip } from "react-tooltip";
+import type React from "react";
+import { useState } from "react";
 
 interface JsonInputProps {
   onJsonSubmit: (data: Record<string, number[]>) => void;
@@ -12,15 +12,37 @@ const JsonInput: React.FC<JsonInputProps> = ({ onJsonSubmit }) => {
     e.preventDefault();
     try {
       const parsedData = JSON.parse(jsonInput);
-      onJsonSubmit(parsedData);
+
+      let formattedData: Record<string, number[]> = {};
+
+      if (Array.isArray(parsedData)) {
+        parsedData.forEach((sectionObj) => {
+          const sectionName = Object.keys(sectionObj)[0];
+          formattedData[sectionName] = sectionObj[sectionName];
+        });
+      } else if (parsedData.sections) {
+        formattedData = parsedData.sections;
+      } else {
+        formattedData = parsedData;
+      }
+
+      Object.entries(formattedData).forEach(([key, value]) => {
+        if (
+          !Array.isArray(value) ||
+          !value.every((num) => typeof num === "number")
+        ) {
+          throw new Error(
+            `La sección "${key}" debe contener un array de números`
+          );
+        }
+      });
+
+      onJsonSubmit(formattedData);
+      setJsonInput("");
     } catch (error) {
-      alert("Error al parsear el JSON. Por favor, verifica el formato.");
+      alert(`Error al parsear el JSON`);
     }
   };
-
-  const exampleJson = ` Ejemplo: {
-    "Sección 1.1": [14, 15, 24, 25, 28], "Seccion 1.2": [1, 2, 3, 4, 5, 6]
-  }`;
 
   return (
     <form onSubmit={handleSubmit} className="mb-4">
@@ -29,14 +51,6 @@ const JsonInput: React.FC<JsonInputProps> = ({ onJsonSubmit }) => {
         onChange={(e) => setJsonInput(e.target.value)}
         placeholder="Pega aquí tu JSON de secciones y ejercicios"
         className="w-full h-40 p-2 border rounded"
-        data-tooltip-id="json-example-tooltip"
-        data-tooltip-content={exampleJson}
-      />
-      <ReactTooltip
-        id="json-example-tooltip"
-        place="top"
-        type="dark"
-        effect="solid"
       />
       <button
         type="submit"
