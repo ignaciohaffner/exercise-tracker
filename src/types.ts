@@ -40,13 +40,6 @@ export interface UserPreferences {
   compactMode: boolean;
   showExerciseCounts: boolean;
   enableKeyboardShortcuts: boolean;
-  customStates: {
-    enabled: boolean;
-    states: Array<{
-      name: string;
-      color: string;
-    }>;
-  };
 }
 
 export type ThemeProps = Theme;

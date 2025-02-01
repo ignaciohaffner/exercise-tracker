@@ -4,12 +4,25 @@ import type { Exercise, Theme } from "../types";
 interface ExerciseStatsProps {
   exercises: Exercise[];
   theme: Theme;
+  variant?: "full" | "compact";
 }
 
-const ExerciseStats: React.FC<ExerciseStatsProps> = ({ exercises, theme }) => {
+const ExerciseStats: React.FC<ExerciseStatsProps> = ({
+  exercises,
+  theme,
+  variant = "full",
+}) => {
   const total = exercises.length;
   const completed = exercises.filter((ex) => ex.state === "resuelto").length;
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  if (variant === "compact") {
+    return (
+      <span className="text-sm" style={{ color: theme.colors.textSecondary }}>
+        {completed}/{total} ejercicios completados
+      </span>
+    );
+  }
 
   return (
     <div

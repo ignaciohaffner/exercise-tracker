@@ -132,6 +132,7 @@ const TopicList: React.FC<TopicListProps> = ({
                             <ExerciseStats
                               exercises={getAllExercisesForTopic(topic)}
                               theme={theme}
+                              variant="full"
                             />
                           )}
                         </div>
@@ -150,23 +151,25 @@ const TopicList: React.FC<TopicListProps> = ({
                                 <span style={{ color: theme.colors.text }}>
                                   {section.name}
                                 </span>
-                                <button
-                                  onClick={() =>
-                                    setDeleteConfirmation({
-                                      topic: topic.name,
-                                      section: section.name,
-                                    })
-                                  }
-                                  className="p-1 rounded hover:opacity-80"
-                                  style={{
-                                    backgroundColor: theme.colors.error,
-                                  }}
-                                >
-                                  <Trash2
-                                    size={14}
-                                    color={theme.colors.buttonText}
-                                  />
-                                </button>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() =>
+                                      setDeleteConfirmation({
+                                        topic: topic.name,
+                                        section: section.name,
+                                      })
+                                    }
+                                    className="p-1 rounded hover:opacity-80"
+                                    style={{
+                                      backgroundColor: theme.colors.error,
+                                    }}
+                                  >
+                                    <Trash2
+                                      size={14}
+                                      color={theme.colors.buttonText}
+                                    />
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}

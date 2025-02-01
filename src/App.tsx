@@ -13,7 +13,7 @@ import type {
   Exercise,
   Theme,
   ThemeMode,
-  UserPreferences,
+  UserPreferences as UserPreferencesType,
 } from "./types";
 import { theme as themeConfig } from "./theme";
 import { SettingsIcon } from "lucide-react";
@@ -27,15 +27,17 @@ const App: React.FC = () => {
   const [showSectionCreator, setShowSectionCreator] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [themeMode, setThemeMode] = useState<ThemeMode>("light");
-  const [userPreferences, setUserPreferences] = useState<UserPreferences>({
+  const [userPreferences, setUserPreferences] = useState<UserPreferencesType>({
     compactMode: false,
     showExerciseCounts: true,
     enableKeyboardShortcuts: false,
-    customStates: {
-      enabled: false,
-      states: [],
-    },
   });
+
+  // TODO: Implementar sistema de cuentas de usuario
+  // - Permitir sincronización de datos para usuarios registrados
+  // - Mantener localStorage para usuarios sin cuenta (guest)
+  // - Añadir UI para login/registro
+  // - Implementar sincronización con backend
 
   useEffect(() => {
     const storedTopics = localStorage.getItem("mathTopics");
@@ -229,14 +231,10 @@ const App: React.FC = () => {
 
       // Ensure user preferences are initialized
       if (!localStorage.getItem("userPreferences")) {
-        const defaultPreferences: UserPreferences = {
+        const defaultPreferences: UserPreferencesType = {
           compactMode: false,
           showExerciseCounts: true,
           enableKeyboardShortcuts: false,
-          customStates: {
-            enabled: false,
-            states: [],
-          },
         };
         setUserPreferences(defaultPreferences);
         localStorage.setItem(

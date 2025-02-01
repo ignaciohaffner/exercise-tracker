@@ -22,12 +22,9 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
 }) => {
   const { colors } = theme;
 
+  // Use default values if userPreferences is undefined
   const compactMode = userPreferences?.compactMode ?? false;
   const showExerciseCounts = userPreferences?.showExerciseCounts ?? true;
-  const customStates = userPreferences?.customStates ?? {
-    enabled: false,
-    states: [],
-  };
 
   const stateColors: Record<Exercise["state"], string> = {
     "sin resolver": colors.surface,
@@ -68,7 +65,11 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
               {section.name}
             </h3>
             {showExerciseCounts && (
-              <ExerciseStats exercises={section.exercises} theme={theme} />
+              <ExerciseStats
+                exercises={section.exercises}
+                theme={theme}
+                variant="compact"
+              />
             )}
           </div>
           <div className={`flex flex-wrap ${compactMode ? "gap-1" : "gap-2"}`}>
@@ -82,12 +83,7 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
                   compactMode ? "w-8 h-8 text-sm" : "w-10 h-10"
                 }`}
                 style={{
-                  backgroundColor:
-                    customStates.enabled && exercise.state !== "sin resolver"
-                      ? customStates.states.find(
-                          (s) => s.name === exercise.state
-                        )?.color || stateColors[exercise.state]
-                      : stateColors[exercise.state],
+                  backgroundColor: stateColors[exercise.state],
                   color:
                     exercise.state === "sin resolver"
                       ? colors.text
