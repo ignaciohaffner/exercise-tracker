@@ -160,13 +160,34 @@ const App: React.FC = () => {
     setShowSectionCreator(false);
   };
 
-  const exportData = () => {
-    const data = JSON.stringify(topics, null, 2);
+  const exportData = (type: "full" | "structure") => {
+    let dataToExport: Topic[];
+
+    if (type === "full") {
+      dataToExport = topics;
+    } else {
+      // Create a deep copy and set all exercise states to "sin resolver"
+      dataToExport = topics.map((topic) => ({
+        name: topic.name,
+        sections: topic.sections.map((section) => ({
+          name: section.name,
+          exercises: section.exercises.map((exercise) => ({
+            number: exercise.number,
+            state: "sin resolver" as const,
+          })),
+        })),
+      }));
+    }
+
+    const data = JSON.stringify(dataToExport, null, 2);
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "math_exercises_data.json";
+    a.download =
+      type === "full"
+        ? "math_exercises_full_backup.json"
+        : "math_exercises_structure.json";
     a.click();
     URL.revokeObjectURL(url);
   };

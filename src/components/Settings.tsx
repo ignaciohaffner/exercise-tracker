@@ -4,7 +4,7 @@ import type { Theme, ThemeMode } from "../types";
 interface SettingsProps {
   theme: Theme;
   setTheme: (mode: ThemeMode) => void;
-  exportData: () => void;
+  exportData: (type: "full" | "structure") => void;
   importData: (data: string) => void;
 }
 
@@ -45,13 +45,20 @@ const Settings: React.FC<SettingsProps> = ({
         </label>
       </div>
 
-      <div>
+      <div className="space-y-2">
         <button
-          onClick={exportData}
-          className="px-4 py-2 rounded text-white"
+          onClick={() => exportData("full")}
+          className="w-full px-4 py-2 rounded text-white"
           style={{ backgroundColor: theme.colors.primary }}
         >
-          Exportar datos
+          Exportar backup completo
+        </button>
+        <button
+          onClick={() => exportData("structure")}
+          className="w-full px-4 py-2 rounded text-white"
+          style={{ backgroundColor: theme.colors.secondary }}
+        >
+          Exportar estructura
         </button>
       </div>
 
