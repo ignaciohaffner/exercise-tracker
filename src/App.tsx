@@ -6,7 +6,15 @@ import TopicList from "./components/TopicList";
 import Modal from "./components/Modal";
 import SectionCreator from "./components/SectionCreator";
 import Settings from "./components/Settings";
-import type { Topic, Section, Exercise, Theme, ThemeMode } from "./types";
+import UserPreferences from "./components/UserPreferences";
+import type {
+  Topic,
+  Section,
+  Exercise,
+  Theme,
+  ThemeMode,
+  UserPreferences,
+} from "./types";
 import { theme as themeConfig } from "./theme";
 import { SettingsIcon } from "lucide-react";
 
@@ -19,6 +27,15 @@ const App: React.FC = () => {
   const [showSectionCreator, setShowSectionCreator] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [themeMode, setThemeMode] = useState<ThemeMode>("light");
+  const [userPreferences, setUserPreferences] = useState<UserPreferences>({
+    compactMode: false,
+    showExerciseCounts: true,
+    enableKeyboardShortcuts: false,
+    customStates: {
+      enabled: false,
+      states: [],
+    },
+  });
 
   useEffect(() => {
     const storedTopics = localStorage.getItem("mathTopics");
@@ -34,11 +51,20 @@ const App: React.FC = () => {
     if (storedTheme) {
       setThemeMode(storedTheme);
     }
+
+    const storedPreferences = localStorage.getItem("userPreferences");
+    if (storedPreferences) {
+      setUserPreferences(JSON.parse(storedPreferences));
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem("theme", themeMode);
   }, [themeMode]);
+
+  useEffect(() => {
+    localStorage.setItem("userPreferences", JSON.stringify(userPreferences));
+  }, [userPreferences]);
 
   const colors = themeConfig.getColors(themeMode);
   const theme: Theme = { mode: themeMode, colors };
@@ -200,6 +226,24 @@ const App: React.FC = () => {
       if (parsedData.length > 0) {
         setCurrentTopic(parsedData[0].name);
       }
+
+      // Ensure user preferences are initialized
+      if (!localStorage.getItem("userPreferences")) {
+        const defaultPreferences: UserPreferences = {
+          compactMode: false,
+          showExerciseCounts: true,
+          enableKeyboardShortcuts: false,
+          customStates: {
+            enabled: false,
+            states: [],
+          },
+        };
+        setUserPreferences(defaultPreferences);
+        localStorage.setItem(
+          "userPreferences",
+          JSON.stringify(defaultPreferences)
+        );
+      }
     } catch (error) {
       alert(
         "Error al importar los datos. Asegúrate de que el archivo es válido."
@@ -244,6 +288,7 @@ const App: React.FC = () => {
               onTopicsReorder={handleTopicsReorder}
               onDeleteTopic={handleDeleteTopic}
               onDeleteSection={handleDeleteSection}
+              preferences={userPreferences}
             />
           </div>
           <div className="md:col-span-2">
@@ -283,6 +328,7 @@ const App: React.FC = () => {
                     topic={currentTopicData}
                     updateExerciseState={updateExerciseState}
                     theme={theme}
+                    userPreferences={userPreferences}
                   />
                 )}
               </>
@@ -328,12 +374,23 @@ const App: React.FC = () => {
         onClose={() => setShowSettings(false)}
         theme={theme}
       >
-        <Settings
-          theme={theme}
-          setTheme={setThemeMode}
-          exportData={exportData}
-          importData={importData}
-        />
+        <div className="space-y-8">
+          <Settings
+            theme={theme}
+            setTheme={setThemeMode}
+            exportData={exportData}
+            importData={importData}
+          />
+          <div
+            className="border-t"
+            style={{ borderColor: theme.colors.border }}
+          ></div>
+          <UserPreferences
+            theme={theme}
+            preferences={userPreferences}
+            onPreferencesChange={setUserPreferences}
+          />
+        </div>
       </Modal>
     </div>
   );

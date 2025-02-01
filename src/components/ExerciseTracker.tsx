@@ -1,5 +1,6 @@
 import type React from "react";
-import type { Topic, Exercise, Theme } from "../types";
+import type { Topic, Exercise, Theme, UserPreferences } from "../types";
+import ExerciseStats from "./ExerciseStats";
 
 interface ExerciseTrackerProps {
   topic: Topic;
@@ -10,14 +11,23 @@ interface ExerciseTrackerProps {
     newState: Exercise["state"]
   ) => void;
   theme: Theme;
+  userPreferences: UserPreferences;
 }
 
 const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
   topic,
   updateExerciseState,
   theme,
+  userPreferences,
 }) => {
   const { colors } = theme;
+
+  const compactMode = userPreferences?.compactMode ?? false;
+  const showExerciseCounts = userPreferences?.showExerciseCounts ?? true;
+  const customStates = userPreferences?.customStates ?? {
+    enabled: false,
+    states: [],
+  };
 
   const stateColors: Record<Exercise["state"], string> = {
     "sin resolver": colors.surface,
@@ -47,27 +57,41 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = ({
       {topic.sections.map((section) => (
         <div
           key={section.name}
-          className="p-4 rounded-lg"
+          className={`rounded-lg ${compactMode ? "p-2" : "p-4"}`}
           style={{ backgroundColor: colors.surface }}
         >
-          <h3
-            className="text-xl font-semibold mb-4"
-            style={{ color: colors.text }}
-          >
-            {section.name}
-          </h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex justify-between items-center mb-4">
+            <h3
+              className="text-xl font-semibold"
+              style={{ color: colors.text }}
+            >
+              {section.name}
+            </h3>
+            {showExerciseCounts && (
+              <ExerciseStats exercises={section.exercises} theme={theme} />
+            )}
+          </div>
+          <div className={`flex flex-wrap ${compactMode ? "gap-1" : "gap-2"}`}>
             {section.exercises.map((exercise) => (
               <div
                 key={exercise.number}
                 onClick={() =>
                   handleClick(section.name, exercise.number, exercise.state)
                 }
-                className="w-10 h-10 flex items-center justify-center rounded cursor-pointer transition-transform hover:scale-110 shadow-sm"
+                className={`flex items-center justify-center rounded cursor-pointer transition-transform hover:scale-110 shadow-sm ${
+                  compactMode ? "w-8 h-8 text-sm" : "w-10 h-10"
+                }`}
                 style={{
-                  backgroundColor: stateColors[exercise.state],
+                  backgroundColor:
+                    customStates.enabled && exercise.state !== "sin resolver"
+                      ? customStates.states.find(
+                          (s) => s.name === exercise.state
+                        )?.color || stateColors[exercise.state]
+                      : stateColors[exercise.state],
                   color:
-                    exercise.state === "sin resolver" ? colors.text : "#FFF",
+                    exercise.state === "sin resolver"
+                      ? colors.text
+                      : colors.buttonText,
                   border: `1px solid ${colors.border}`,
                 }}
               >

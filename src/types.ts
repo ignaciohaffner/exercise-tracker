@@ -23,15 +23,30 @@ export interface ThemeColors {
   background: string;
   surface: string;
   text: string;
+  textSecondary: string;
   error: string;
   success: string;
   warning: string;
   border: string;
+  buttonText: string;
 }
 
 export interface Theme {
   mode: ThemeMode;
   colors: ThemeColors;
+}
+
+export interface UserPreferences {
+  compactMode: boolean;
+  showExerciseCounts: boolean;
+  enableKeyboardShortcuts: boolean;
+  customStates: {
+    enabled: boolean;
+    states: Array<{
+      name: string;
+      color: string;
+    }>;
+  };
 }
 
 export type ThemeProps = Theme;
